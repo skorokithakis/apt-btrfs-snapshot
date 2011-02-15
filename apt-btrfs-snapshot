@@ -115,8 +115,14 @@ class AptBtrfsSnapshots(object):
         backup = os.path.join(mp, self.BACKUP_PREFIX+self._get_now_str())
         os.rename(default_root, backup)
         os.rename(new_root, default_root)
+        self.umount_btrfs_root_volume()
         return True
-    
+    def delete_snapshot(self, snapshot_name):
+        mp = self.mount_btrfs_root_volume()
+        ret = subprocess.call(["btrfs", "subvolume", "delete",
+                               os.path.join(mp, snapshot_name)])
+        self.umount_btrfs_root_volume()
+        return ret == 0
     
 if __name__ == "__main__":
 
@@ -124,6 +130,7 @@ if __name__ == "__main__":
     supported_commands = { 'snapshot' : 'create_btrfs_root_snapshot',
                            'list' : 'print_btrfs_root_snapshots',
                            'set-default' : 'set_default',
+                           'delete' : 'delete_snapshot',
                          }
 
     apt_btrfs = AptBtrfsSnapshots()
@@ -133,7 +140,7 @@ if __name__ == "__main__":
 
     # poor mans commandline parser
     if len(sys.argv) < 2 or sys.argv[1] not in supported_commands:
-        print "supported commands: %s" % ",".join(supported_commands)        
+        print "supported commands: %s" % ", ".join(supported_commands)        
         sys.exit(1)
 
     # run it
