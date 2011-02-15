@@ -92,11 +92,24 @@ class AptBtrfsSnapshots(object):
                               )
         self.umount_btfs_root_volume()
         return ret == 0
-
+    def get_btrfs_root_snapshots_list(self):
+        l = []
+        mp = self.mount_btrfs_root_volume()
+        for e in os.listdir(mp):
+            if e.startswith(self.SNAP_PREFIX):
+                l.append(e)
+        self.umount_btrfs_root_volume()
+        return l
+    def print_btrfs_root_snapshots(self):
+        print "Available snapshots:"
+        print "  \n".join(self.get_btrfs_root_snapshots_list())
+    
+    
 if __name__ == "__main__":
 
     # option -> function mapping
     supported_commands = { 'snapshot' : 'create_btrfs_root_snapshot',
+                           'list' : 'print_btrfs_root_snapshots',
                          }
 
     apt_btrfs = AptBtrfsSnapshots()
