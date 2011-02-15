@@ -1,0 +1,120 @@
+#!/usr/bin/python
+
+import datetime
+import os
+import string
+import subprocess
+import sys
+import tempfile
+
+class FstabEntry(object):
+    @classmethod
+    def from_line(cls, line):
+        return FstabEntry(*line.split())
+    def __init__(self, fs_spec, mountpoint, fstype, options, dump, passno):
+        # uuid or device
+        self.fs_spec = fs_spec
+        self.mountpoint = mountpoint
+        self.fstype = fstype
+        self.options = options
+        self.dump = dump
+        self.passno = passno
+    def __repr__(self):
+        return "<FstabEntry '%s' '%s' '%s' '%s' '%s' '%s'>" % (
+            self.fs_spec, self.mountpoint, self.fstype,
+            self.options, self.dump, self.passno)
+
+class Fstab(list):
+    def __init__(self, fstab="/etc/fstab"):
+        super(Fstab, self).__init__()
+        for line in map(string.strip, open(fstab)):
+            if line == "" or line.startswith("#"):
+                continue
+            try:
+                entry = FstabEntry.from_line(line)
+            except ValueError:
+                continue
+            self.append(entry)
+
+class Mount(object):
+    def mount(self, fs_spec, mountpoint):
+        ret = subprocess.call(["mount", fs_spec, mountpoint])
+        return ret == 0
+    def umount(self, mountpoint):
+        ret = subprocess.call(["umount", mountpoint])
+        return ret == 0
+
+class AptBtrfsSnapshots(object):
+    SNAP_PREFIX = "@apt-snapshot-"
+    
+    def __init__(self, fstab="/etc/fstab"):
+        self.fstab = Fstab(fstab)
+        self._btrfs_root_mountpoint = None
+    def snapshots_supported(self):
+        """ verify that the system supports apt btrfs snapshots
+            by checking if the right fs layout is used etc
+        """
+        for entry in self.fstab:
+            if (entry.mountpoint == "/" and
+                entry.fstype == "btrfs" and
+                "subvol=@" in entry.options):
+                return True
+        return False
+    def _uuid_for_mountpoint(self, mountpoint, fstab="/etc/fstab"):
+        """ return the device or UUID for the given mountpoint """
+        for entry in self.fstab:
+            if entry.mountpoint == mountpoint:
+                return entry.fs_spec
+        return None
+    def mount_btrfs_root_volume(self):
+        uuid = self._uuid_for_mountpoint("/")
+        mount = Mount()
+        mountpoint = tempfile.mkdtemp(prefix="apt-btrfs-snapshot-mp-")
+        if not mount.mount(uuid, mountpoint):
+            return None
+        self._btrfs_root_mountpoint = mountpoint
+        return self._btrfs_root_mountpoint
+    def umount_btrfs_root_volume(self):
+        mount = Mount()
+        res = mount.umount(self._btrfs_root_mountpoint)
+        os.rmdir(self._btrfs_root_mountpoint)
+        self._btrfs_root_mountpoint = None
+        return res
+    def create_btrfs_root_snapshot(self):
+        mp = self.mount_btrfs_root_volume()
+        now = datetime.datetime.now().replace(microsecond=0)
+        snap_id = now.isoformat('_')
+        ret = subprocess.call(["btrfs", "subvolume", "snapshot",
+                               # source
+                               os.path.join(mp, "@"),
+                               # dest
+                               os.path.join(mp, self.SNAP_PREFIX+snap_id)]
+                              )
+        self.umount_btfs_root_volume()
+        return ret == 0
+
+if __name__ == "__main__":
+
+    # option -> function mapping
+    supported_commands = { 'snapshot' : 'create_btrfs_root_snapshot',
+                         }
+
+    apt_btrfs = AptBtrfsSnapshots()
+    if not apt_btrfs.snapshots_supported():
+        print "Sorry, your system lacks support for the snapshot feature"
+        sys.exit(1)
+
+    # poor mans commandline parser
+    if len(sys.argv) < 2 or sys.argv[1] not in supported_commands:
+        print "supported commands: %s" % ",".join(supported_commands)        
+        sys.exit(1)
+
+    # run it
+    command = sys.argv[1]
+    if command in supported_commands:
+        func = getattr(apt_btrfs, supported_commands[command])
+        func()
+
+
+
+
