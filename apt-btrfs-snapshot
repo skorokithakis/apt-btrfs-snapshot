@@ -45,7 +45,10 @@ class Mount(object):
         return ret == 0
 
 class AptBtrfsSnapshots(object):
+    # normal snapshot
     SNAP_PREFIX = "@apt-snapshot-"
+    # backname when changing
+    BACKUP_PREFIX = SNAP_PREFIX+"old-root-"
     
     def __init__(self, fstab="/etc/fstab"):
         self.fstab = Fstab(fstab)
@@ -80,10 +83,11 @@ class AptBtrfsSnapshots(object):
         os.rmdir(self._btrfs_root_mountpoint)
         self._btrfs_root_mountpoint = None
         return res
+    def _get_now_str(self):
+        return  datetime.datetime.now().replace(microsecond=0).isoformat("_")
     def create_btrfs_root_snapshot(self):
         mp = self.mount_btrfs_root_volume()
-        now = datetime.datetime.now().replace(microsecond=0)
-        snap_id = now.isoformat('_')
+        snap_id = self._get_now_str()
         ret = subprocess.call(["btrfs", "subvolume", "snapshot",
                                # source
                                os.path.join(mp, "@"),
@@ -103,6 +107,15 @@ class AptBtrfsSnapshots(object):
     def print_btrfs_root_snapshots(self):
         print "Available snapshots:"
         print "  \n".join(self.get_btrfs_root_snapshots_list())
+    def set_default(self, snapshot_name, backup=True):
+        """ set new default """
+        mp = self.mount_btrfs_root_volume()
+        new_root = os.path.join(mp, snapshot_name)
+        default_root = os.path.join(mp, "@")
+        backup = os.path.join(mp, self.BACKUP_PREFIX+self._get_now_str())
+        os.rename(default_root, backup)
+        os.rename(new_root, default_root)
+        return True
     
     
 if __name__ == "__main__":
@@ -110,12 +123,13 @@ if __name__ == "__main__":
     # option -> function mapping
     supported_commands = { 'snapshot' : 'create_btrfs_root_snapshot',
                            'list' : 'print_btrfs_root_snapshots',
+                           'set-default' : 'set_default',
                          }
 
     apt_btrfs = AptBtrfsSnapshots()
     if not apt_btrfs.snapshots_supported():
         print "Sorry, your system lacks support for the snapshot feature"
-        sys.exit(1)
+        #sys.exit(1)
 
     # poor mans commandline parser
     if len(sys.argv) < 2 or sys.argv[1] not in supported_commands:
@@ -126,7 +140,7 @@ if __name__ == "__main__":
     command = sys.argv[1]
     if command in supported_commands:
         func = getattr(apt_btrfs, supported_commands[command])
-        func()
+        func(*sys.argv[2:])
 
 
 
