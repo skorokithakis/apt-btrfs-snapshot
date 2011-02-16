@@ -47,7 +47,7 @@ class LowLevelCommands(object):
         ret = subprocess.call(["btrfs", "subvolume", "snapshot",
                                source, dest])
         return ret == 0
-    def btrfs_delete_snapsho(self, snapshot):
+    def btrfs_delete_snapshot(self, snapshot):
         ret = subprocess.call(["btrfs", "subvolume", "delete", snapshot])
         return ret == 0
 
@@ -125,7 +125,7 @@ class AptBtrfsSnapshots(object):
         return True
     def delete_snapshot(self, snapshot_name):
         mp = self.mount_btrfs_root_volume()
-        res = self.command.btrfs.delete_snapshot(
+        res = self.commands.btrfs_delete_snapshot(
             os.path.join(mp, snapshot_name))
         self.umount_btrfs_root_volume()
         return res

@@ -52,5 +52,22 @@ class TestFstab(unittest.TestCase):
         self.assertTrue(args[0].endswith("@"))
         self.assertTrue("apt-btrfs-snapshot-mp" in args[1])
 
+    @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
+    def test_btrfs_delete_snapshot(self, mock_commands):
+        # setup mock
+        mock_commands.btrfs_delete_snapshot.return_value = True
+        mock_commands.mount.return_value = True
+        mock_commands.umount.return_value = True
+        # do it
+        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        res = apt_btrfs.delete_snapshot("lala")
+        self.assertTrue(res)
+        self.assertTrue(apt_btrfs.commands.mount.called)
+        self.assertTrue(apt_btrfs.commands.umount.called)
+        self.assertTrue(apt_btrfs.commands.btrfs_delete_snapshot.called)
+        (args, kwargs) = apt_btrfs.commands.btrfs_delete_snapshot.call_args
+        self.assertTrue(args[0].endswith("/lala"))
+
+
 if __name__ == "__main__":
     unittest.main()
