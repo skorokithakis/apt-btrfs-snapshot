@@ -43,6 +43,8 @@ class TestFstab(unittest.TestCase):
         # do it
         apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
         res = apt_btrfs.create_btrfs_root_snapshot()
+        self.assertTrue(apt_btrfs.commands.mount.called)
+        self.assertTrue(apt_btrfs.commands.umount.called)
         self.assertTrue(res)
         self.assertTrue(apt_btrfs.commands.btrfs_subvolume_snapshot.called)
         (args, kwargs) = apt_btrfs.commands.btrfs_subvolume_snapshot.call_args

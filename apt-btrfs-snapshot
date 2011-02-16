@@ -97,7 +97,7 @@ class AptBtrfsSnapshots(object):
         res = self.commands.btrfs_subvolume_snapshot(
             os.path.join(mp, "@"),
             os.path.join(mp, self.SNAP_PREFIX+snap_id))
-        self.commands.umount_btfs_root_volume()
+        self.umount_btrfs_root_volume()
         return res
     def get_btrfs_root_snapshots_list(self):
         l = []
