@@ -114,12 +114,12 @@ class AptBtrfsSnapshot(object):
         return res
     def _get_now_str(self):
         return  datetime.datetime.now().replace(microsecond=0).isoformat("_")
-    def create_btrfs_root_snapshot(self):
+    def create_btrfs_root_snapshot(self, additional_prefix=""):
         mp = self.mount_btrfs_root_volume()
         snap_id = self._get_now_str()
         res = self.commands.btrfs_subvolume_snapshot(
             os.path.join(mp, "@"),
-            os.path.join(mp, self.SNAP_PREFIX+snap_id))
+            os.path.join(mp, self.SNAP_PREFIX+additional_prefix+snap_id))
         self.umount_btrfs_root_volume()
         return res
     def get_btrfs_root_snapshots_list(self):

@@ -35,7 +35,7 @@ class TestFstab(unittest.TestCase):
         self.assertFalse(os.path.exists(mp))
 
     @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
-    def test_btrfs_snapshot(self, mock_commands):
+    def test_btrfs_create_snapshot(self, mock_commands):
         # setup mock
         mock_commands.btrfs_subvolume_snapshot.return_value = True
         mock_commands.mount.return_value = True
@@ -43,6 +43,7 @@ class TestFstab(unittest.TestCase):
         # do it
         apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         res = apt_btrfs.create_btrfs_root_snapshot()
+        # check results
         self.assertTrue(apt_btrfs.commands.mount.called)
         self.assertTrue(apt_btrfs.commands.umount.called)
         self.assertTrue(res)
@@ -50,7 +51,11 @@ class TestFstab(unittest.TestCase):
         (args, kwargs) = apt_btrfs.commands.btrfs_subvolume_snapshot.call_args
         self.assertTrue(len(args), 2)
         self.assertTrue(args[0].endswith("@"))
-        self.assertTrue("apt-btrfs-snapshot-mp" in args[1])
+        self.assertTrue("@apt-snapshot-" in args[1])
+        # again with a additional prefix for the snapshot
+        res = apt_btrfs.create_btrfs_root_snapshot("release-upgrade-natty-")
+        (args, kwargs) = apt_btrfs.commands.btrfs_subvolume_snapshot.call_args
+        self.assertTrue("@apt-snapshot-release-upgrade-natty-" in args[1])
 
     @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
     def test_btrfs_delete_snapshot(self, mock_commands):
