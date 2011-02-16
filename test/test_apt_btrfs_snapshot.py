@@ -8,25 +8,25 @@ import unittest
 sys.path.insert(0, "..")
 sys.path.insert(0, ".")
 import apt_btrfs_snapshot
-from apt_btrfs_snapshot import (AptBtrfsSnapshots,
+from apt_btrfs_snapshot import (AptBtrfsSnapshot,
                                 LowLevelCommands)
 
 class TestFstab(unittest.TestCase):
 
     def test_fstab_detect_snapshot(self):
-        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         self.assertTrue(apt_btrfs.snapshots_supported())
-        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab.no-btrfs")
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.no-btrfs")
         self.assertFalse(apt_btrfs.snapshots_supported())
 
     def test_fstab_get_uuid(self):
-        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         self.assertEqual(apt_btrfs._uuid_for_mountpoint("/"),
                          "UUID=fe63f598-1906-478e-acc7-f74740e78d1f")
 
     @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
     def test_mount_btrfs_root_volume(self, mock_commands):
-        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         mock_commands.mount.return_value = True
         mock_commands.umount.return_value = True
         mp = apt_btrfs.mount_btrfs_root_volume()
@@ -41,7 +41,7 @@ class TestFstab(unittest.TestCase):
         mock_commands.mount.return_value = True
         mock_commands.umount.return_value = True
         # do it
-        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         res = apt_btrfs.create_btrfs_root_snapshot()
         self.assertTrue(apt_btrfs.commands.mount.called)
         self.assertTrue(apt_btrfs.commands.umount.called)
@@ -59,7 +59,7 @@ class TestFstab(unittest.TestCase):
         mock_commands.mount.return_value = True
         mock_commands.umount.return_value = True
         # do it
-        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         res = apt_btrfs.delete_snapshot("lala")
         self.assertTrue(res)
         self.assertTrue(apt_btrfs.commands.mount.called)
