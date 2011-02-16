@@ -139,10 +139,14 @@ if __name__ == "__main__":
                            'delete' : 'delete_snapshot',
                          }
 
+    if os.getuid() != 0:
+        print "Sorry, you need to be root to run this program"
+        sys.exit(1)
+
     apt_btrfs = AptBtrfsSnapshots()
     if not apt_btrfs.snapshots_supported():
         print "Sorry, your system lacks support for the snapshot feature"
-        #sys.exit(1)
+        sys.exit(1)
 
     # poor mans commandline parser
     if len(sys.argv) < 2 or sys.argv[1] not in supported_commands:
