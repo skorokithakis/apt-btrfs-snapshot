@@ -36,12 +36,19 @@ class Fstab(list):
                 continue
             self.append(entry)
 
-class Mount(object):
+class LowLevelCommands(object):
     def mount(self, fs_spec, mountpoint):
         ret = subprocess.call(["mount", fs_spec, mountpoint])
         return ret == 0
     def umount(self, mountpoint):
         ret = subprocess.call(["umount", mountpoint])
+        return ret == 0
+    def btrfs_subvolume_snapshot(self, source, dest):
+        ret = subprocess.call(["btrfs", "subvolume", "snapshot",
+                               source, dest])
+        return ret == 0
+    def btrfs_delete_snapsho(self, snapshot):
+        ret = subprocess.call(["btrfs", "subvolume", "delete", snapshot])
         return ret == 0
 
 class AptBtrfsSnapshots(object):
@@ -52,6 +59,7 @@ class AptBtrfsSnapshots(object):
     
     def __init__(self, fstab="/etc/fstab"):
         self.fstab = Fstab(fstab)
+        self.commands = LowLevelCommands()
         self._btrfs_root_mountpoint = None
     def snapshots_supported(self):
         """ verify that the system supports apt btrfs snapshots
@@ -71,15 +79,13 @@ class AptBtrfsSnapshots(object):
         return None
     def mount_btrfs_root_volume(self):
         uuid = self._uuid_for_mountpoint("/")
-        mount = Mount()
         mountpoint = tempfile.mkdtemp(prefix="apt-btrfs-snapshot-mp-")
-        if not mount.mount(uuid, mountpoint):
+        if not self.commands.mount(uuid, mountpoint):
             return None
         self._btrfs_root_mountpoint = mountpoint
         return self._btrfs_root_mountpoint
     def umount_btrfs_root_volume(self):
-        mount = Mount()
-        res = mount.umount(self._btrfs_root_mountpoint)
+        res = self.commands.umount(self._btrfs_root_mountpoint)
         os.rmdir(self._btrfs_root_mountpoint)
         self._btrfs_root_mountpoint = None
         return res
@@ -88,14 +94,11 @@ class AptBtrfsSnapshots(object):
     def create_btrfs_root_snapshot(self):
         mp = self.mount_btrfs_root_volume()
         snap_id = self._get_now_str()
-        ret = subprocess.call(["btrfs", "subvolume", "snapshot",
-                               # source
-                               os.path.join(mp, "@"),
-                               # dest
-                               os.path.join(mp, self.SNAP_PREFIX+snap_id)]
-                              )
-        self.umount_btfs_root_volume()
-        return ret == 0
+        res = self.commands.btrfs_subvolume_snapshot(
+            os.path.join(mp, "@"),
+            os.path.join(mp, self.SNAP_PREFIX+snap_id))
+        self.commands.umount_btfs_root_volume()
+        return res
     def get_btrfs_root_snapshots_list(self):
         l = []
         mp = self.mount_btrfs_root_volume()
@@ -107,6 +110,9 @@ class AptBtrfsSnapshots(object):
     def print_btrfs_root_snapshots(self):
         print "Available snapshots:"
         print "  \n".join(self.get_btrfs_root_snapshots_list())
+    def command_set_default(self, snapshot_name):
+        self.set_default(snapshot_name)
+        print "Please reboot"
     def set_default(self, snapshot_name, backup=True):
         """ set new default """
         mp = self.mount_btrfs_root_volume()
@@ -119,17 +125,17 @@ class AptBtrfsSnapshots(object):
         return True
     def delete_snapshot(self, snapshot_name):
         mp = self.mount_btrfs_root_volume()
-        ret = subprocess.call(["btrfs", "subvolume", "delete",
-                               os.path.join(mp, snapshot_name)])
+        res = self.command.btrfs.delete_snapshot(
+            os.path.join(mp, snapshot_name))
         self.umount_btrfs_root_volume()
-        return ret == 0
+        return res
     
 if __name__ == "__main__":
 
     # option -> function mapping
     supported_commands = { 'snapshot' : 'create_btrfs_root_snapshot',
                            'list' : 'print_btrfs_root_snapshots',
-                           'set-default' : 'set_default',
+                           'set-default' : 'command_set_default',
                            'delete' : 'delete_snapshot',
                          }
 

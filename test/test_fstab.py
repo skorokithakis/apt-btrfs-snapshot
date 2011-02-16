@@ -9,7 +9,7 @@ sys.path.insert(0, "..")
 sys.path.insert(0, ".")
 import apt_btrfs_snapshot
 from apt_btrfs_snapshot import (AptBtrfsSnapshots,
-                                Mount)
+                                LowLevelCommands)
 
 class TestFstab(unittest.TestCase):
 
@@ -24,15 +24,31 @@ class TestFstab(unittest.TestCase):
         self.assertEqual(apt_btrfs._uuid_for_mountpoint("/"),
                          "UUID=fe63f598-1906-478e-acc7-f74740e78d1f")
 
-    @mock.patch('apt_btrfs_snapshot.Mount')
-    def test_mount_btrfs_root_volume(self, mock_mount):
+    @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
+    def test_mount_btrfs_root_volume(self, mock_commands):
         apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
-        mock_mount.mount.return_value = True
-        mock_mount.umount.return_value = True
+        mock_commands.mount.return_value = True
+        mock_commands.umount.return_value = True
         mp = apt_btrfs.mount_btrfs_root_volume()
         self.assertTrue("apt-btrfs-snapshot-mp-" in mp)
         self.assertTrue(apt_btrfs.umount_btrfs_root_volume())
         self.assertFalse(os.path.exists(mp))
+
+    @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
+    def test_btrfs_snapshot(self, mock_commands):
+        # setup mock
+        mock_commands.btrfs_subvolume_snapshot.return_value = True
+        mock_commands.mount.return_value = True
+        mock_commands.umount.return_value = True
+        # do it
+        apt_btrfs = AptBtrfsSnapshots(fstab="./test/data/fstab")
+        res = apt_btrfs.create_btrfs_root_snapshot()
+        self.assertTrue(res)
+        self.assertTrue(apt_btrfs.commands.btrfs_subvolume_snapshot.called)
+        (args, kwargs) = apt_btrfs.commands.btrfs_subvolume_snapshot.call_args
+        self.assertTrue(len(args), 2)
+        self.assertTrue(args[0].endswith("@"))
+        self.assertTrue("apt-btrfs-snapshot-mp" in args[1])
 
 if __name__ == "__main__":
     unittest.main()
