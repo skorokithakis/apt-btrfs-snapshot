@@ -1,0 +1,19 @@
+Source: apt-btrfs-snapshot
+Section: admin
+Priority: optional
+Maintainer: Michael Vogt <michael.vogt@ubuntu.com>
+Build-Depends: debhelper (>= 7),
+               python (>= 2.6.5-2~),
+               intltool
+X-Python-Version: all
+Standards-Version: 3.9.1
+Vcs-Bzr: https://code.launchpad.net/~mvo/apt-btrfs-snapshot
+
+Package: apt-btrfs-snapshot
+Architecture: all
+Depends: ${python:Depends},
+         ${misc:Depends},
+         btrfs-tools
+Description: Automatically create snapshot on apt operations
+ This will create a btrfs snapshot of the root filesystem when apt
+ invokes dpkg. It also allows easy rollback.

@@ -1,0 +1,6 @@
+apt-btrfs-snapshot (0.1+bzr4) UNRELEASED; urgency=low
+
+  * Initial Release.
+
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 16 Feb 2011 12:52:09 +0100
+
