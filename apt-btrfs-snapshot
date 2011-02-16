@@ -1,4 +1,21 @@
 #!/usr/bin/python
+# Copyright (C) 2011 Canonical
+#
+# Author:
+#  Michael Vogt
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; version 3.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import datetime
 import os
@@ -8,6 +25,7 @@ import sys
 import tempfile
 
 class FstabEntry(object):
+    """ a single fstab entry line """
     @classmethod
     def from_line(cls, line):
         return FstabEntry(*line.split())
@@ -25,6 +43,7 @@ class FstabEntry(object):
             self.options, self.dump, self.passno)
 
 class Fstab(list):
+    """ a list of FstabEntry items """
     def __init__(self, fstab="/etc/fstab"):
         super(Fstab, self).__init__()
         for line in map(string.strip, open(fstab)):
@@ -37,6 +56,9 @@ class Fstab(list):
             self.append(entry)
 
 class LowLevelCommands(object):
+    """ lowlevel commands invoked to perform various tasks like
+        inteact with mount and btrfs tools
+    """
     def mount(self, fs_spec, mountpoint):
         ret = subprocess.call(["mount", fs_spec, mountpoint])
         return ret == 0
@@ -52,6 +74,8 @@ class LowLevelCommands(object):
         return ret == 0
 
 class AptBtrfsSnapshots(object):
+    """ the high level object that interacts with the snapshot system """
+    
     # normal snapshot
     SNAP_PREFIX = "@apt-snapshot-"
     # backname when changing
