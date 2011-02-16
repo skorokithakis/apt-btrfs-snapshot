@@ -1,1 +1,1 @@
-DPkg::Post-Invoke {"if [ -x /usr/bin/apt-btrfs-snapshot ]; then apt-btrfs-snapshot snapshot; fi "; };
+DPkg::Pre-Invoke {"if [ -x /usr/bin/apt-btrfs-snapshot ]; then apt-btrfs-snapshot snapshot; fi "; };
