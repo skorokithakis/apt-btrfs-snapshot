@@ -29,11 +29,13 @@ from apt_btrfs_snapshot import AptBtrfsSnapshot
 if __name__ == "__main__":
 
     # option -> function mapping
-    supported_commands = { 'snapshot' : 'create_btrfs_root_snapshot',
-                           'list' : 'print_btrfs_root_snapshots',
-                           'set-default' : 'command_set_default',
-                           'delete' : 'delete_snapshot',
-                         }
+    supported_commands = {
+        'supported' : 'snapshots_supported',
+        'snapshot' : 'create_btrfs_root_snapshot',
+        'list' : 'print_btrfs_root_snapshots',
+        'set-default' : 'command_set_default',
+        'delete' : 'delete_snapshot',
+        }
 
     if os.getuid() != 0:
         print "Sorry, you need to be root to run this program"
@@ -53,7 +55,11 @@ if __name__ == "__main__":
     command = sys.argv[1]
     if command in supported_commands:
         func = getattr(apt_btrfs, supported_commands[command])
-        func(*sys.argv[2:])
+        res = func(*sys.argv[2:])
+        if res:
+            sys.exit(0)
+        else:
+            sys.exit(1)
 
 
 
