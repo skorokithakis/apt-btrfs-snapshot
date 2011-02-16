@@ -1,4 +1,4 @@
-apt-btrfs-snapshot (0.1+bzr4) UNRELEASED; urgency=low
+apt-btrfs-snapshot (0.1) UNRELEASED; urgency=low
 
   * Initial Release.
 

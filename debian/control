@@ -14,5 +14,8 @@ Depends: ${python:Depends},
          ${misc:Depends},
          btrfs-tools
 Description: Automatically create snapshot on apt operations
- This will create a btrfs snapshot of the root filesystem when apt
- invokes dpkg. It also allows easy rollback.
+ This will create a btrfs snapshot of the root filesystem each time
+ that apt installs/removes/upgrades a software package. 
+ . 
+ A commandline tool called "apt-btrfs-snapshot" is also provided
+ for easy access create/list/delete snapshots.
