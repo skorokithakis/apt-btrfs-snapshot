@@ -1,4 +1,4 @@
-apt-btrfs-snapshot (0.1.1) UNRELEASED; urgency=low
+apt-btrfs-snapshot (0.1.1) natty; urgency=low
 
   * added TODO
   * move functionality into module for easy import from e.g.
@@ -9,7 +9,7 @@ apt-btrfs-snapshot (0.1.1) UNRELEASED; urgency=low
   * data/80-btrfs-snapshot:
     - only snapshot if the system supports snapshots
 
- -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 16 Feb 2011 15:40:28 +0100
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 16 Feb 2011 17:52:48 +0100
 
 apt-btrfs-snapshot (0.1) natty; urgency=low
 
