@@ -1,6 +1,6 @@
-apt-btrfs-snapshot (0.1) UNRELEASED; urgency=low
+apt-btrfs-snapshot (0.1) natty; urgency=low
 
   * Initial Release.
 
- -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 16 Feb 2011 12:52:09 +0100
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 16 Feb 2011 15:36:10 +0100
 
