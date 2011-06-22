@@ -3,6 +3,7 @@
 import mock
 import os
 import sys
+import time
 import unittest
 
 sys.path.insert(0, "..")
@@ -73,6 +74,10 @@ class TestFstab(unittest.TestCase):
         (args, kwargs) = apt_btrfs.commands.btrfs_delete_snapshot.call_args
         self.assertTrue(args[0].endswith("/lala"))
 
+    def test_parser_older_than_to_unixtime(self):
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        t = apt_btrfs._parse_older_than_to_unixtime("5d")
+        self.assertTrue( t < time.time() - 5*60*60*24)
 
 if __name__ == "__main__":
     unittest.main()

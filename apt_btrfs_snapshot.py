@@ -21,6 +21,7 @@ import os
 import string
 import subprocess
 import sys
+import time
 import tempfile
 
 class FstabEntry(object):
@@ -122,17 +123,37 @@ class AptBtrfsSnapshot(object):
             os.path.join(mp, self.SNAP_PREFIX+additional_prefix+snap_id))
         self.umount_btrfs_root_volume()
         return res
-    def get_btrfs_root_snapshots_list(self):
+    def get_btrfs_root_snapshots_list(self, older_than=0):
+        """ get the list of available snapshot
+            If "older_then" is given (in unixtime format) it will only include 
+            snapshots that are older then the given date)
+        """
         l = []
+        if older_than == 0:
+            older_than = time.time()
         mp = self.mount_btrfs_root_volume()
         for e in os.listdir(mp):
             if e.startswith(self.SNAP_PREFIX):
-                l.append(e)
+                atime = os.path.getatime(os.path.join(mp, e))
+                ctime = os.path.getatime(os.path.join(mp, e))
+                if max(atime, ctime) < older_than:
+                    l.append(e)
         self.umount_btrfs_root_volume()
         return l
     def print_btrfs_root_snapshots(self):
         print "Available snapshots:"
         print "  \n".join(self.get_btrfs_root_snapshots_list())
+    def _parse_older_than_to_unixtime(self, timefmt):
+        now = time.time()
+        if not timefmt.endswith("d"):
+            raise Exception("Please specify time in days (e.g. 10d)")
+        days = int(timefmt[:-1])
+        return now - (days * 24 * 60 * 60)
+    def print_btrfs_root_snapshots_older_than(self, timefmt):
+        older_than_unixtime = self._parse_older_than_to_unixtime(timefmt)
+        print "Available snapshots older than '%s':" % timefmt
+        print "  \n".join(self.get_btrfs_root_snapshots_list(
+                older_than=older_than_unixtime))
     def command_set_default(self, snapshot_name):
         self.set_default(snapshot_name)
         print "Please reboot"
