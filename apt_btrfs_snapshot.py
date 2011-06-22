@@ -134,9 +134,10 @@ class AptBtrfsSnapshot(object):
         mp = self.mount_btrfs_root_volume()
         for e in os.listdir(mp):
             if e.startswith(self.SNAP_PREFIX):
-                atime = os.path.getatime(os.path.join(mp, e))
-                ctime = os.path.getatime(os.path.join(mp, e))
-                if max(atime, ctime) < older_than:
+                # fstab is read when it was booted and when a snapshot is
+                # created (to check if there is support for btrfs)
+                atime = os.path.getatime(os.path.join(mp, e, "etc", "fstab"))
+                if atime < older_than:
                     l.append(e)
         self.umount_btrfs_root_volume()
         return l
