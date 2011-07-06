@@ -29,7 +29,7 @@ class FstabEntry(object):
     @classmethod
     def from_line(cls, line):
         return FstabEntry(*line.split())
-    def __init__(self, fs_spec, mountpoint, fstype, options, dump, passno):
+    def __init__(self, fs_spec, mountpoint, fstype, options, dump=0, passno=0):
         # uuid or device
         self.fs_spec = fs_spec
         self.mountpoint = mountpoint

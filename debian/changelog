@@ -1,3 +1,10 @@
+apt-btrfs-snapshot (0.1.2) oneiric; urgency=low
+
+  * ignore fs_freq and fs_passno in fstab if they don't exit,
+    and add regression test (LP: #806065)
+    
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 06 Jul 2011 17:06:36 +0200
+
 apt-btrfs-snapshot (0.1.1) natty; urgency=low
 
   * added TODO

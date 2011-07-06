@@ -19,6 +19,8 @@ class TestFstab(unittest.TestCase):
         self.assertTrue(apt_btrfs.snapshots_supported())
         apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.no-btrfs")
         self.assertFalse(apt_btrfs.snapshots_supported())
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.bug806065")
+        self.assertFalse(apt_btrfs.snapshots_supported())
 
     def test_fstab_get_uuid(self):
         apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
