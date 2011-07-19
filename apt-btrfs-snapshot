@@ -49,9 +49,9 @@ if __name__ == "__main__":
     command = subparser.add_parser("list")
     command.set_defaults(command="list")
     # set-default
-    command = subparser.add_parser("list")
+    command = subparser.add_parser("set-default")
     command.add_argument("snapshot")
-    command.set_defaults(command="list")
+    command.set_defaults(command="set-default")
     # delete
     command = subparser.add_parser("delete")
     command.add_argument("snapshot")
