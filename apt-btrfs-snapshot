@@ -17,27 +17,62 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import argparse
 import datetime
+import logging
 import os
 import string
 import subprocess
 import sys
 import tempfile
 
+from gettext import gettext as _
+
 from apt_btrfs_snapshot import AptBtrfsSnapshot
 
 if __name__ == "__main__":
 
-    # option -> function mapping
-    supported_commands = {
-        'supported' : 'snapshots_supported',
-        'snapshot' : 'create_btrfs_root_snapshot',
-        'list' : 'print_btrfs_root_snapshots',
-        'set-default' : 'command_set_default',
-        'delete' : 'delete_snapshot',
-        'list-older-than' : 'print_btrfs_root_snapshots_older_than',
-        'delete-older-than' : 'clean_btrfs_root_snapshots_older_than',
-        }
+    # command line parser
+    description = _("Filesystem snapshot support for apt")
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("--debug", action="store_true", default=False,
+                        help="enable debug output")
+
+    subparser = parser.add_subparsers(title="Commands")
+    # supported
+    command = subparser.add_parser("supported")
+    command.set_defaults(command="supported")
+    # snapshot 
+    command = subparser.add_parser("snapshot")
+    command.set_defaults(command="snapshot")
+    # list
+    command = subparser.add_parser("list")
+    command.set_defaults(command="list")
+    # set-default
+    command = subparser.add_parser("list")
+    command.add_argument("snapshot")
+    command.set_defaults(command="list")
+    # delete
+    command = subparser.add_parser("delete")
+    command.add_argument("snapshot")
+    command.set_defaults(command="delete")
+    # list-older-than
+    command = subparser.add_parser("list-older-than")
+    command.add_argument("time")
+    command.set_defaults(command="list-older-than")
+    # delete-older-than
+    command = subparser.add_parser("delete-older-than")
+    command.add_argument("time")
+    command.set_defaults(command="delete-older-than")
+
+    # parse args
+    args = parser.parse_args()
+
+    # global options
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
     if os.getuid() != 0:
         print "Sorry, you need to be root to run this program"
@@ -48,20 +83,28 @@ if __name__ == "__main__":
         print "Sorry, your system lacks support for the snapshot feature"
         sys.exit(1)
 
-    # poor mans commandline parser
-    if len(sys.argv) < 2 or sys.argv[1] not in supported_commands:
-        print "supported commands: %s" % ", ".join(supported_commands)        
-        sys.exit(1)
+    res = False
+    if args.command == "supported":
+        res = apt_btrfs.snapshots_supported()
+    elif args.command == "snapshot":
+        res = apt_btrfs.create_btrfs_root_snapshot()
+    elif args.command == "list":
+        res = apt_btrfs.print_btrfs_root_snapshots()
+    elif args.command == "set-default":
+        res = apt_btrfs.command_set_default(args.snapshot)
+    elif args.command == "delete":
+        res = apt_btrfs.delete_snapshot(args.snapshot)
+    elif args.command == "list-older-than":
+        res = apt_btrfs.print_btrfs_root_snapshots_older_than(args.time)
+    elif args.command == "delete-older-than":
+        res = apt_btrfs.clean_btrfs_root_snapshots_older_than(args.time)
+    else:
+        print "ERROR: Unhandled command: '%s'" % args.command
 
-    # run it
-    command = sys.argv[1]
-    if command in supported_commands:
-        func = getattr(apt_btrfs, supported_commands[command])
-        res = func(*sys.argv[2:])
-        if res:
-            sys.exit(0)
-        else:
-            sys.exit(1)
+    if res:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 
 
