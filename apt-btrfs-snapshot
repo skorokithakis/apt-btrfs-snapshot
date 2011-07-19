@@ -36,6 +36,7 @@ if __name__ == "__main__":
         'set-default' : 'command_set_default',
         'delete' : 'delete_snapshot',
         'list-older-than' : 'print_btrfs_root_snapshots_older_than',
+        'delete-older-than' : 'clean_btrfs_root_snapshots_older_than',
         }
 
     if os.getuid() != 0:

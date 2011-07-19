@@ -1,3 +1,10 @@
+apt-btrfs-snapshot (0.1.3) UNRELEASED; urgency=low
+
+  * apt-btrfs-snapshot:
+    - add "delete-older-than" command
+
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 19 Jul 2011 10:10:17 +0200
+
 apt-btrfs-snapshot (0.1.2) oneiric; urgency=low
 
   * ignore fs_freq and fs_passno in fstab if they don't exit,

@@ -155,6 +155,11 @@ class AptBtrfsSnapshot(object):
         print "Available snapshots older than '%s':" % timefmt
         print "  \n".join(self.get_btrfs_root_snapshots_list(
                 older_than=older_than_unixtime))
+    def clean_btrfs_root_snapshots_older_than(self, timefmt):
+        older_than_unixtime = self._parse_older_than_to_unixtime(timefmt)
+        for snap in self.get_btrfs_root_snapshots_list(
+            older_than=older_than_unixtime):
+            delete_snapshot(snap)
     def command_set_default(self, snapshot_name):
         self.set_default(snapshot_name)
         print "Please reboot"
