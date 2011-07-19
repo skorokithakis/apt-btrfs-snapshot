@@ -1,3 +1,10 @@
+apt-btrfs-snapshot (0.1.4) UNRELEASEDoneirc; urgency=low
+
+  * return the right exit status when apt-btrfs-snapshot 
+    set-default is used
+
+ -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 19 Jul 2011 13:09:50 +0200
+
 apt-btrfs-snapshot (0.1.3) oneiric; urgency=low
 
   * apt-btrfs-snapshot:

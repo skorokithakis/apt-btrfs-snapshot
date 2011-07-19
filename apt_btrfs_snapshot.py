@@ -163,8 +163,9 @@ class AptBtrfsSnapshot(object):
             older_than=older_than_unixtime):
             self.delete_snapshot(snap)
     def command_set_default(self, snapshot_name):
-        self.set_default(snapshot_name)
+        res = self.set_default(snapshot_name)
         print "Please reboot"
+        return res
     def set_default(self, snapshot_name, backup=True):
         """ set new default """
         mp = self.mount_btrfs_root_volume()
