@@ -3,7 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Michael Vogt <michael.vogt@ubuntu.com>
 Build-Depends: debhelper (>= 7),
-               python (>= 2.6.5-2~)
+               python (>= 2.6.5-2~),
+               python-distutils-extra,
 X-Python-Version: all
 Standards-Version: 3.9.1
 Vcs-Bzr: https://code.launchpad.net/~mvo/apt-btrfs-snapshot

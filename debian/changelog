@@ -1,7 +1,9 @@
-apt-btrfs-snapshot (0.1.4) UNRELEASEDoneirc; urgency=low
+apt-btrfs-snapshot (0.2) UNRELEASEDoneirc; urgency=low
 
   * return the right exit status when apt-btrfs-snapshot 
     set-default is used
+  * use argparse instead of home grown parser and add help
+  * add i18n
 
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 19 Jul 2011 13:09:50 +0200
 
