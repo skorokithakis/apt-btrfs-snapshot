@@ -2,6 +2,10 @@ apt-btrfs-snapshot (0.1.3) UNRELEASED; urgency=low
 
   * apt-btrfs-snapshot:
     - add "delete-older-than" command
+  * debian/apt-btrfs-snapshot.cron.weekly:
+    - add cronjob to allow deleting old snapshots, defaulting to
+      90 days (but overridable with the apt config variable
+      APT::Snapshots::MaxAge)
 
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 19 Jul 2011 10:10:17 +0200
 

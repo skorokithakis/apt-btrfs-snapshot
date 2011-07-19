@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+# check if its there
+if [ ! -x /usr/bin/apt-btrfs-snapshot ]; then
+    exit 0
+fi
+
+# check if its usable, if list returns a non-zero exit code, 
+# we probably run on a system with no snapshot support
+if ! /usr/bin/apt-btrfs-snapshot list > /dev/null  2>&1; then
+    exit 0
+fi
+
+# allow the user to set MaxAge (in days)
+MaxAge=90
+eval $(apt-config shell MaxAge APT::Snapshots::MaxAge)
+
+# delete old snapshots
+apt-btrfs-snapshot delete-older-than $MaxAge

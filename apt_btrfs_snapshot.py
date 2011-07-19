@@ -144,6 +144,7 @@ class AptBtrfsSnapshot(object):
     def print_btrfs_root_snapshots(self):
         print "Available snapshots:"
         print "  \n".join(self.get_btrfs_root_snapshots_list())
+        return True
     def _parse_older_than_to_unixtime(self, timefmt):
         now = time.time()
         if not timefmt.endswith("d"):
@@ -155,6 +156,7 @@ class AptBtrfsSnapshot(object):
         print "Available snapshots older than '%s':" % timefmt
         print "  \n".join(self.get_btrfs_root_snapshots_list(
                 older_than=older_than_unixtime))
+        return True
     def clean_btrfs_root_snapshots_older_than(self, timefmt):
         older_than_unixtime = self._parse_older_than_to_unixtime(timefmt)
         for snap in self.get_btrfs_root_snapshots_list(
