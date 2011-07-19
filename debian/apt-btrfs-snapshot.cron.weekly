@@ -18,4 +18,5 @@ MaxAge=90
 eval $(apt-config shell MaxAge APT::Snapshots::MaxAge)
 
 # delete old snapshots
-apt-btrfs-snapshot delete-older-than $MaxAge
+apt-btrfs-snapshot delete-older-than "${MaxAge}d"
+
