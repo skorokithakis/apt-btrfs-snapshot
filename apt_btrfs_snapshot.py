@@ -57,7 +57,7 @@ class Fstab(list):
 
 class LowLevelCommands(object):
     """ lowlevel commands invoked to perform various tasks like
-        inteact with mount and btrfs tools
+        interact with mount and btrfs tools
     """
     def mount(self, fs_spec, mountpoint):
         ret = subprocess.call(["mount", fs_spec, mountpoint])
