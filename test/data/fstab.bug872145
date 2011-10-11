@@ -1,0 +1,4 @@
+# random header
+
+# line with comment in it
+UUID=c3329969-5a64-4ce1-905f-b42ac9649a84 / btrfs defaults,subvol=@ 0 1 #/dev/sda2

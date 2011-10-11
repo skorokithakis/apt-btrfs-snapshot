@@ -28,7 +28,7 @@ class FstabEntry(object):
     """ a single fstab entry line """
     @classmethod
     def from_line(cls, line):
-        return FstabEntry(*line.split())
+        return FstabEntry(*line.partition("#")[0].split())
     def __init__(self, fs_spec, mountpoint, fstype, options, dump=0, passno=0):
         # uuid or device
         self.fs_spec = fs_spec
