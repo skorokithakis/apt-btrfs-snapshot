@@ -24,6 +24,13 @@ import sys
 import time
 import tempfile
 
+class AptBtrfsSnapshotError(Exception):
+    pass
+class AptBtrfsNotSupportedError(AptBtrfsSnapshotError):
+    pass
+class AptBtrfsRootWithNoatimeError(AptBtrfsSnapshotError):
+    pass
+
 class FstabEntry(object):
     """ a single fstab entry line """
     @classmethod
@@ -93,12 +100,16 @@ class AptBtrfsSnapshot(object):
         if not os.path.exists("/sbin/btrfs"):
             return False
         # check the fstab
+        entry = self._get_supported_btrfs_root_fstab_entry()
+        return entry != None
+    def _get_supported_btrfs_root_fstab_entry(self):
+        """ return the supported btrfs root FstabEntry or None """
         for entry in self.fstab:
             if (entry.mountpoint == "/" and
                 entry.fstype == "btrfs" and
                 "subvol=@" in entry.options):
-                return True
-        return False
+                return entry
+        return None
     def _uuid_for_mountpoint(self, mountpoint, fstab="/etc/fstab"):
         """ return the device or UUID for the given mountpoint """
         for entry in self.fstab:
@@ -133,6 +144,15 @@ class AptBtrfsSnapshot(object):
             snapshots that are older then the given date)
         """
         l = []
+        # if older_than is used, ensure that the rootfs does not use
+        # "noatime"
+        if older_than != 0:
+            entry = self._get_supported_btrfs_root_fstab_entry()
+            if not entry:
+                raise AptBtrfsSnapshotNotSupportedError()
+            if "noatime" in entry.options:
+                raise AptBtrfsRootWithNoatimeError()
+        # if there is no older than, interpret that as "now"
         if older_than == 0:
             older_than = time.time()
         mp = self.mount_btrfs_root_volume()
@@ -157,15 +177,25 @@ class AptBtrfsSnapshot(object):
         return now - (days * 24 * 60 * 60)
     def print_btrfs_root_snapshots_older_than(self, timefmt):
         older_than_unixtime = self._parse_older_than_to_unixtime(timefmt)
-        print "Available snapshots older than '%s':" % timefmt
-        print "  \n".join(self.get_btrfs_root_snapshots_list(
-                older_than=older_than_unixtime))
+        try:
+            print "Available snapshots older than '%s':" % timefmt
+            print "  \n".join(self.get_btrfs_root_snapshots_list(
+                    older_than=older_than_unixtime))
+        except AptBtrfsRootWithNoatimeError:
+            sys.stderr.write("Error: fstab option 'noatime' incompatible with option")
+            return False
         return True
     def clean_btrfs_root_snapshots_older_than(self, timefmt):
+        res = True
         older_than_unixtime = self._parse_older_than_to_unixtime(timefmt)
-        for snap in self.get_btrfs_root_snapshots_list(
-            older_than=older_than_unixtime):
-            self.delete_snapshot(snap)
+        try:
+            for snap in self.get_btrfs_root_snapshots_list(
+                older_than=older_than_unixtime):
+                res &= self.delete_snapshot(snap)
+        except AptBtrfsRootWithNoatimeError:
+            sys.stderr.write("Error: fstab option 'noatime' incompatible with option")
+            return False
+        return res
     def command_set_default(self, snapshot_name):
         res = self.set_default(snapshot_name)
         print "Please reboot"

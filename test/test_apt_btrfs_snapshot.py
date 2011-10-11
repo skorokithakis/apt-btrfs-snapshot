@@ -10,6 +10,7 @@ sys.path.insert(0, "..")
 sys.path.insert(0, ".")
 import apt_btrfs_snapshot
 from apt_btrfs_snapshot import (AptBtrfsSnapshot,
+                                AptBtrfsRootWithNoatimeError,
                                 LowLevelCommands)
 
 class TestFstab(unittest.TestCase):
@@ -28,6 +29,21 @@ class TestFstab(unittest.TestCase):
         apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
         self.assertEqual(apt_btrfs._uuid_for_mountpoint("/"),
                          "UUID=fe63f598-1906-478e-acc7-f74740e78d1f")
+
+    def test_fstab_noatime(self):
+        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.bug833980")
+        # ensure our test is right
+        entry = apt_btrfs._get_supported_btrfs_root_fstab_entry()
+        self.assertTrue("noatime" in entry.options)
+        # ensure we get the right exception
+        self.assertRaises(AptBtrfsRootWithNoatimeError,
+                          apt_btrfs.get_btrfs_root_snapshots_list,
+                          "1d")
+        # and the right return codes from the commands
+        self.assertEqual(apt_btrfs.clean_btrfs_root_snapshots_older_than("1d"),
+                         False)
+        self.assertEqual(apt_btrfs.print_btrfs_root_snapshots_older_than("1d"),
+                         False)
 
     @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
     def test_mount_btrfs_root_volume(self, mock_commands):

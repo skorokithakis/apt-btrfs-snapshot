@@ -1,0 +1,4 @@
+# random header
+
+# line with comment in it
+UUID=yyy-5a64-4ce1-905f-xxx / btrfs defaults,noatime,subvol=@ 0 1
