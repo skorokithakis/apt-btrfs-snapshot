@@ -89,6 +89,10 @@ class AptBtrfsSnapshot(object):
         """ verify that the system supports apt btrfs snapshots
             by checking if the right fs layout is used etc
         """
+        # check for the helper binary
+        if not os.path.exists("/sbin/btrfs"):
+            return False
+        # check the fstab
         for entry in self.fstab:
             if (entry.mountpoint == "/" and
                 entry.fstype == "btrfs" and
