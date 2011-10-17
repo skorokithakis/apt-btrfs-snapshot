@@ -15,23 +15,32 @@ from apt_btrfs_snapshot import (AptBtrfsSnapshot,
 
 class TestFstab(unittest.TestCase):
 
+    def setUp(self):
+        self.testdir = os.path.dirname(os.path.abspath(__file__))
+
     def test_fstab_detect_snapshot(self):
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab"))
         self.assertTrue(apt_btrfs.snapshots_supported())
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.no-btrfs")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab.no-btrfs"))
         self.assertFalse(apt_btrfs.snapshots_supported())
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.bug806065")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab.bug806065"))
         self.assertFalse(apt_btrfs.snapshots_supported())
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.bug872145")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab.bug872145"))
         self.assertTrue(apt_btrfs.snapshots_supported())
 
     def test_fstab_get_uuid(self):
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab"))
         self.assertEqual(apt_btrfs._uuid_for_mountpoint("/"),
                          "UUID=fe63f598-1906-478e-acc7-f74740e78d1f")
 
     def test_fstab_noatime(self):
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab.bug833980")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab.bug833980"))
         # ensure our test is right
         entry = apt_btrfs._get_supported_btrfs_root_fstab_entry()
         self.assertTrue("noatime" in entry.options)
@@ -47,7 +56,8 @@ class TestFstab(unittest.TestCase):
 
     @mock.patch('apt_btrfs_snapshot.LowLevelCommands')
     def test_mount_btrfs_root_volume(self, mock_commands):
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab"))
         mock_commands.mount.return_value = True
         mock_commands.umount.return_value = True
         mp = apt_btrfs.mount_btrfs_root_volume()
@@ -62,7 +72,8 @@ class TestFstab(unittest.TestCase):
         mock_commands.mount.return_value = True
         mock_commands.umount.return_value = True
         # do it
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab"))
         res = apt_btrfs.create_btrfs_root_snapshot()
         # check results
         self.assertTrue(apt_btrfs.commands.mount.called)
@@ -85,7 +96,8 @@ class TestFstab(unittest.TestCase):
         mock_commands.mount.return_value = True
         mock_commands.umount.return_value = True
         # do it
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab"))
         res = apt_btrfs.delete_snapshot("lala")
         self.assertTrue(res)
         self.assertTrue(apt_btrfs.commands.mount.called)
@@ -95,7 +107,8 @@ class TestFstab(unittest.TestCase):
         self.assertTrue(args[0].endswith("/lala"))
 
     def test_parser_older_than_to_unixtime(self):
-        apt_btrfs = AptBtrfsSnapshot(fstab="./test/data/fstab")
+        apt_btrfs = AptBtrfsSnapshot(
+            fstab=os.path.join(self.testdir, "data", "fstab"))
         t = apt_btrfs._parse_older_than_to_unixtime("5d")
         self.assertTrue( t < time.time() - 5*60*60*24)
 

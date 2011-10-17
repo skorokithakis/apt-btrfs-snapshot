@@ -4,6 +4,9 @@ apt-btrfs-snapshot (0.2.2) UNRELEASEDoneiric-proposed; urgency=low
     - disable "delete-older-than" command if noatime is in use on 
       the snapshot fs (LP: #833980)
   * merge lp:~brian-murray/apt-btrfs-snapshot/fix-vcs/, many thanks!
+  * apt_btrfs_snapshot.py:
+    - be even more robust against invalid fstab entries 
+      (LP: #873411 comment #7)
 
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 11 Oct 2011 10:20:45 +0200
 

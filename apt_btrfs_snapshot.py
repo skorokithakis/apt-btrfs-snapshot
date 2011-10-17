@@ -35,7 +35,11 @@ class FstabEntry(object):
     """ a single fstab entry line """
     @classmethod
     def from_line(cls, line):
-        return FstabEntry(*line.partition("#")[0].split())
+        # split up
+        args = line.partition("#")[0].split()
+        # use only the first 7 args and ignore anything after them, mount
+        # seems to do the same, see bug #873411 comment #7
+        return FstabEntry(*args[0:6])
     def __init__(self, fs_spec, mountpoint, fstype, options, dump=0, passno=0):
         # uuid or device
         self.fs_spec = fs_spec
