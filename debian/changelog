@@ -19,7 +19,13 @@ apt-btrfs-snapshot (0.2.2) UNRELEASED; urgency=low
     - remove unused imports 'LowLevelCommands' and 'apt_btrfs_snapshot'
     - mock sys.stdout and sys.stderr to avoid confusing and spurious output
     - mock /sbin/btrfs to allow running unit-tests without btrfs-tools
-
+  * debian/rules:
+    - build with supported versions of python2 and python3
+    - run unittests at build time, honoring nocheck
+  * debian/control:
+    - adjust dependencies for python3 support
+    - bump standards version to 3.9.3
+  
  -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Mon, 11 Jun 2012 14:07:41 +0100
 
 apt-btrfs-snapshot (0.2.1build1) precise; urgency=low
