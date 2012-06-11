@@ -10,8 +10,9 @@ apt-btrfs-snapshot (0.2.2) UNRELEASED; urgency=low
       (LP: #873411 comment #7)
 
   [ Dmitrijs Ledkovs ]
-  * apt_btrfs_snapshot.py:
+  * apt_btrfs_snapshot.py, apt-btrfs-snapshot:
     - port to python3
+  * apt_btrfs_snapshot.py:
     - fix pyflakes warning use 'AptBtrfsNotSupportedError' instead of
       undefined name 'AptBtrfsSnapshotNotSupportedError'
   * test/test_apt_btrfs_snapshot.py:
