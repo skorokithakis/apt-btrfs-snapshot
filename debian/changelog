@@ -1,5 +1,6 @@
 apt-btrfs-snapshot (0.2.2) UNRELEASED; urgency=low
 
+  [ Michael Vogt ]
   * apt_btrfs_snapshot.py, test/test_apt_btrfs_snapshot.py:
     - disable "delete-older-than" command if noatime is in use on 
       the snapshot fs (LP: #833980)
@@ -8,7 +9,13 @@ apt-btrfs-snapshot (0.2.2) UNRELEASED; urgency=low
     - be even more robust against invalid fstab entries 
       (LP: #873411 comment #7)
 
- -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 11 Oct 2011 10:20:45 +0200
+  [ Dmitrijs Ledkovs ]
+  * apt_btrfs_snapshot.py:
+    - port to python3
+    - fix pyflakes warning use 'AptBtrfsNotSupportedError' instead of
+      undefined name 'AptBtrfsSnapshotNotSupportedError'
+
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Mon, 11 Jun 2012 11:48:30 +0100
 
 apt-btrfs-snapshot (0.2.1build1) precise; urgency=low
 
