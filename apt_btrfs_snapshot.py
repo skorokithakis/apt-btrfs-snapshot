@@ -16,7 +16,7 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import datetime
 import os
@@ -60,7 +60,7 @@ class Fstab(list):
         super(Fstab, self).__init__()
         
         with open(fstab) as fstab_file:
-            for line in [l.strip() for l in fstab_file]:
+            for line in (l.strip() for l in fstab_file):
                 if line == "" or line.startswith("#"):
                     continue
                 try:
@@ -136,7 +136,7 @@ class AptBtrfsSnapshot(object):
         self._btrfs_root_mountpoint = None
         return res
     def _get_now_str(self):
-        return  datetime.datetime.now().replace(microsecond=0).isoformat("_")
+        return  datetime.datetime.now().replace(microsecond=0).isoformat(str('_'))
     def create_btrfs_root_snapshot(self, additional_prefix=""):
         mp = self.mount_btrfs_root_volume()
         snap_id = self._get_now_str()
