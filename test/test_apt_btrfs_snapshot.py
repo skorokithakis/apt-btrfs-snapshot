@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import mock
 import os
 import sys
@@ -8,17 +12,16 @@ import unittest
 
 sys.path.insert(0, "..")
 sys.path.insert(0, ".")
-import apt_btrfs_snapshot
 from apt_btrfs_snapshot import (AptBtrfsSnapshot,
-                                AptBtrfsRootWithNoatimeError,
-                                LowLevelCommands)
+                                AptBtrfsRootWithNoatimeError)
 
 class TestFstab(unittest.TestCase):
 
     def setUp(self):
         self.testdir = os.path.dirname(os.path.abspath(__file__))
 
-    def test_fstab_detect_snapshot(self):
+    @mock.patch('os.path.exists', side_effect=lambda f: f in ('/sbin/btrfs'))
+    def test_fstab_detect_snapshot(self, mock_commands):
         apt_btrfs = AptBtrfsSnapshot(
             fstab=os.path.join(self.testdir, "data", "fstab"))
         self.assertTrue(apt_btrfs.snapshots_supported())
@@ -38,7 +41,9 @@ class TestFstab(unittest.TestCase):
         self.assertEqual(apt_btrfs._uuid_for_mountpoint("/"),
                          "UUID=fe63f598-1906-478e-acc7-f74740e78d1f")
 
-    def test_fstab_noatime(self):
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    @mock.patch('sys.stderr', new_callable=StringIO)
+    def test_fstab_noatime(self, mock_stdout, mock_stderr):
         apt_btrfs = AptBtrfsSnapshot(
             fstab=os.path.join(self.testdir, "data", "fstab.bug833980"))
         # ensure our test is right

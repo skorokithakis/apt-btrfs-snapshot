@@ -14,8 +14,12 @@ apt-btrfs-snapshot (0.2.2) UNRELEASED; urgency=low
     - port to python3
     - fix pyflakes warning use 'AptBtrfsNotSupportedError' instead of
       undefined name 'AptBtrfsSnapshotNotSupportedError'
+  * test/test_apt_btrfs_snapshot.py:
+    - remove unused imports 'LowLevelCommands' and 'apt_btrfs_snapshot'
+    - mock sys.stdout and sys.stderr to avoid confusing and spurious output
+    - mock /sbin/btrfs to allow running unit-tests without btrfs-tools
 
- -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Mon, 11 Jun 2012 11:48:30 +0100
+ -- Dmitrijs Ledkovs <dmitrij.ledkov@ubuntu.com>  Mon, 11 Jun 2012 14:07:41 +0100
 
 apt-btrfs-snapshot (0.2.1build1) precise; urgency=low
 
