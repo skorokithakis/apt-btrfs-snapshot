@@ -1,4 +1,4 @@
-apt-btrfs-snapshot (0.2.2) UNRELEASEDoneiric-proposed; urgency=low
+apt-btrfs-snapshot (0.2.2) UNRELEASED; urgency=low
 
   * apt_btrfs_snapshot.py, test/test_apt_btrfs_snapshot.py:
     - disable "delete-older-than" command if noatime is in use on 
@@ -9,6 +9,12 @@ apt-btrfs-snapshot (0.2.2) UNRELEASEDoneiric-proposed; urgency=low
       (LP: #873411 comment #7)
 
  -- Michael Vogt <michael.vogt@ubuntu.com>  Tue, 11 Oct 2011 10:20:45 +0200
+
+apt-btrfs-snapshot (0.2.1build1) precise; urgency=low
+
+  * Rebuild to drop python2.6 dependencies.
+
+ -- Matthias Klose <doko@ubuntu.com>  Sat, 31 Dec 2011 02:00:37 +0000
 
 apt-btrfs-snapshot (0.2.1) oneiric; urgency=low
 
