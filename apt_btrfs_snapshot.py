@@ -16,9 +16,10 @@
 # this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function, unicode_literals
+
 import datetime
 import os
-import string
 import subprocess
 import sys
 import time
@@ -57,14 +58,16 @@ class Fstab(list):
     """ a list of FstabEntry items """
     def __init__(self, fstab="/etc/fstab"):
         super(Fstab, self).__init__()
-        for line in map(string.strip, open(fstab)):
-            if line == "" or line.startswith("#"):
-                continue
-            try:
-                entry = FstabEntry.from_line(line)
-            except ValueError:
-                continue
-            self.append(entry)
+        
+        with open(fstab) as fstab_file:
+            for line in (l.strip() for l in fstab_file):
+                if line == "" or line.startswith("#"):
+                    continue
+                try:
+                    entry = FstabEntry.from_line(line)
+                except ValueError:
+                    continue
+                self.append(entry)
 
 class LowLevelCommands(object):
     """ lowlevel commands invoked to perform various tasks like
@@ -133,7 +136,7 @@ class AptBtrfsSnapshot(object):
         self._btrfs_root_mountpoint = None
         return res
     def _get_now_str(self):
-        return  datetime.datetime.now().replace(microsecond=0).isoformat("_")
+        return  datetime.datetime.now().replace(microsecond=0).isoformat(str('_'))
     def create_btrfs_root_snapshot(self, additional_prefix=""):
         mp = self.mount_btrfs_root_volume()
         snap_id = self._get_now_str()
@@ -153,7 +156,7 @@ class AptBtrfsSnapshot(object):
         if older_than != 0:
             entry = self._get_supported_btrfs_root_fstab_entry()
             if not entry:
-                raise AptBtrfsSnapshotNotSupportedError()
+                raise AptBtrfsNotSupportedError()
             if "noatime" in entry.options:
                 raise AptBtrfsRootWithNoatimeError()
         # if there is no older than, interpret that as "now"
@@ -170,8 +173,8 @@ class AptBtrfsSnapshot(object):
         self.umount_btrfs_root_volume()
         return l
     def print_btrfs_root_snapshots(self):
-        print "Available snapshots:"
-        print "  \n".join(self.get_btrfs_root_snapshots_list())
+        print("Available snapshots:")
+        print("  \n".join(self.get_btrfs_root_snapshots_list()))
         return True
     def _parse_older_than_to_unixtime(self, timefmt):
         now = time.time()
@@ -182,9 +185,9 @@ class AptBtrfsSnapshot(object):
     def print_btrfs_root_snapshots_older_than(self, timefmt):
         older_than_unixtime = self._parse_older_than_to_unixtime(timefmt)
         try:
-            print "Available snapshots older than '%s':" % timefmt
-            print "  \n".join(self.get_btrfs_root_snapshots_list(
-                    older_than=older_than_unixtime))
+            print("Available snapshots older than '%s':" % timefmt)
+            print("  \n".join(self.get_btrfs_root_snapshots_list(
+                    older_than=older_than_unixtime)))
         except AptBtrfsRootWithNoatimeError:
             sys.stderr.write("Error: fstab option 'noatime' incompatible with option")
             return False
@@ -202,7 +205,7 @@ class AptBtrfsSnapshot(object):
         return res
     def command_set_default(self, snapshot_name):
         res = self.set_default(snapshot_name)
-        print "Please reboot"
+        print("Please reboot")
         return res
     def set_default(self, snapshot_name, backup=True):
         """ set new default """

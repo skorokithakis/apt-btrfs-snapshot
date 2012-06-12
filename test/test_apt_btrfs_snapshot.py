@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+try:
+    from StringIO import StringIO
+    StringIO # pyflakes
+except ImportError:
+    from io import StringIO
 import mock
 import os
 import sys
@@ -18,7 +23,10 @@ class TestFstab(unittest.TestCase):
     def setUp(self):
         self.testdir = os.path.dirname(os.path.abspath(__file__))
 
-    def test_fstab_detect_snapshot(self):
+    @mock.patch('os.path.exists')
+    def test_fstab_detect_snapshot(self, mock_commands):
+        #Using python-mock 0.7 style, for precise compatibility
+        mock_commands.side_effect = lambda f: f in ('/sbin/btrfs')
         apt_btrfs = AptBtrfsSnapshot(
             fstab=os.path.join(self.testdir, "data", "fstab"))
         self.assertTrue(apt_btrfs.snapshots_supported())
@@ -38,7 +46,11 @@ class TestFstab(unittest.TestCase):
         self.assertEqual(apt_btrfs._uuid_for_mountpoint("/"),
                          "UUID=fe63f598-1906-478e-acc7-f74740e78d1f")
 
-    def test_fstab_noatime(self):
+    @mock.patch('sys.stdout')
+    @mock.patch('sys.stderr')
+    def test_fstab_noatime(self, mock_stdout, mock_stderr):
+        mock_stdout.side_effect = StringIO()
+        mock_stderr.side_effect = StringIO()
         apt_btrfs = AptBtrfsSnapshot(
             fstab=os.path.join(self.testdir, "data", "fstab.bug833980"))
         # ensure our test is right

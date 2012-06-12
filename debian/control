@@ -2,16 +2,22 @@ Source: apt-btrfs-snapshot
 Section: admin
 Priority: optional
 Maintainer: Michael Vogt <michael.vogt@ubuntu.com>
-Build-Depends: debhelper (>= 7),
+Build-Depends: debhelper (>= 7.0.50~),
+               python3,
+               python3-distutils-extra,
+               python3-mock,
                python (>= 2.6.5-2~),
                python-distutils-extra,
+               python-mock,
 X-Python-Version: all
-Standards-Version: 3.9.1
+X-Python3-Version: >= 3.2
+Standards-Version: 3.9.3
 Vcs-Bzr: https://code.launchpad.net/apt-btrfs-snapshot
 
 Package: apt-btrfs-snapshot
 Architecture: all
 Depends: ${python:Depends},
+         ${python3:Depends},
          ${misc:Depends},
          btrfs-tools
 Description: Automatically create snapshot on apt operations

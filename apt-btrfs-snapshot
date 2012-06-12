@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Copyright (C) 2011 Canonical
 #
 # Author:
@@ -84,21 +84,21 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.INFO)
 
     if os.getuid() != 0:
-        print _("Sorry, you need to be root to run this program")
+        print(_("Sorry, you need to be root to run this program"))
         sys.exit(1)
 
     apt_btrfs = AptBtrfsSnapshot()
     if not apt_btrfs.snapshots_supported():
-        print _("Sorry, your system lacks support for the snapshot feature")
+        print(_("Sorry, your system lacks support for the snapshot feature"))
         sys.exit(1)
 
     res = False
     if args.command == "supported":
         res = apt_btrfs.snapshots_supported()
         if res:
-            print _("Supported")
+            print(_("Supported"))
         else:
-            print _("Not supported")
+            print(_("Not supported"))
     elif args.command == "snapshot":
         res = apt_btrfs.create_btrfs_root_snapshot()
     elif args.command == "list":
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     elif args.command == "delete-older-than":
         res = apt_btrfs.clean_btrfs_root_snapshots_older_than(args.time)
     else:
-        print _("ERROR: Unhandled command: '%s'") % args.command
+        print(_("ERROR: Unhandled command: '%s'") % args.command)
 
     # return the right exit code
     if res:
