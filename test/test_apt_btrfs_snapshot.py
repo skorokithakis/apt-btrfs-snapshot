@@ -8,10 +8,10 @@ import unittest
 
 sys.path.insert(0, "..")
 sys.path.insert(0, ".")
-import apt_btrfs_snapshot
-from apt_btrfs_snapshot import (AptBtrfsSnapshot,
-                                AptBtrfsRootWithNoatimeError,
-                                LowLevelCommands)
+from apt_btrfs_snapshot import (
+    AptBtrfsSnapshot,
+    AptBtrfsRootWithNoatimeError,
+    )
 
 class TestFstab(unittest.TestCase):
 
