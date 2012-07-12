@@ -49,7 +49,7 @@ if __name__ == "__main__":
     command = subparser.add_parser(
         "list", help=_("List available snapshots"))
     command.set_defaults(command="list")
-    # snapshot 
+    # snapshot
     command = subparser.add_parser(
         "snapshot", help=_("Create a new snapshot"))
     command.set_defaults(command="snapshot")
